@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../assets/css/style.css'
 import '../../assets/css/article.css'
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 function Article() {
+
+    const [data, setData] = useState({
+        dto: [],
+        lineSu: 1,
+        params: 1,
+        pageNum: 0,
+    });
+
+    const {subject, name, created, hitcount, content} = data.dto
+    
+      useEffect(() => {
+       
+        axios.get('/article')
+          .then((response) => {
+            setData(response.data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }, []);
 
     return (
         <div className='bbs'>
@@ -13,7 +34,7 @@ function Article() {
 
             <div className='bbsArticle'>
                 <div className='bbsArticle_header'>
-                    제목
+                    {subject}
                 </div>
                 <div className='bbsArticle_bottomLine'>
                     <dl>

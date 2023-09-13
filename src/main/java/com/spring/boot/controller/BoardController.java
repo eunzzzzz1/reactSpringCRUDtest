@@ -2,7 +2,9 @@ package com.spring.boot.controller;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -36,93 +39,168 @@ public class BoardController {
 		modelAndView.setViewName("index");
 		return modelAndView;
 	}
-	
-	/**
-	 * List 메소드 <br>
-	 * 검색기능은 Post로 처리되기 때문에, method에 get과 post 둘 다
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/list", method = {RequestMethod.GET,RequestMethod.POST})
-	//@GetMapping("/list")
-	public ModelAndView list(HttpServletRequest request) throws Exception {
+
+	@GetMapping("/list")
+	public Map<String, Object> getListData(HttpServletRequest request) throws Exception{
 		
 		
-		// 페이징 처리
 		String pageNum = request.getParameter("pageNum");
-		int currentPage = 1; // 처음 실행했을 땐 1페이지
-		if(pageNum!=null) { // pageNum이 빈 값이 아니면 => 즉 사용자가 원하는 페이지를 넘겼을 때
+		
+		int currentPage = 1;
+		
+		if(pageNum!=null) {
 			currentPage = Integer.parseInt(pageNum);
 		}
 		
-		//검색
-		String searchKey = request.getParameter("searchKey");
+		String searchKey  = request.getParameter("searchKey");
 		String searchValue = request.getParameter("searchValue");
 		
 		if(searchValue==null) {
-			searchKey="subject";
-			searchValue="";
-		} else {
-			// 사용자가 검색을 했을 때
-			if(request.getMethod().equalsIgnoreCase("get")) {
-				searchValue = URLDecoder.decode(searchValue,"UTF-8");
+			searchKey = "subject";
+			searchValue = "";
+		}else {
+			if(request.getMethod().equalsIgnoreCase("GET")) {
+				searchValue = URLDecoder.decode(searchValue, "UTF-8");
 			}
 		}
 		
-			// 전체데이터개수
 		int dataCount = boardService.getDataCount(searchKey, searchValue);
-			
-		int numPerPage = 5; // 페이지에 출력할 게시글의 개수
-		int totalPage = myUtil.getPageCount(numPerPage, dataCount); // 전체 페이지 개수
 		
+		int numPerPage = 5;
+		int totalPage = myUtil.getPageCount(numPerPage, dataCount);
 		
 		if(currentPage>totalPage) {
-			currentPage=totalPage;
+			currentPage = totalPage;
 		}
 		
-			// 한 페이지의 시작rownum, 끝rownum
 		int start = (currentPage-1)*numPerPage+1;
 		int end = currentPage*numPerPage;
 		
-		
-		// 한 페이지 내 게시글 리스트
 		List<BoardDTO> lists = boardService.getList(start, end, searchKey, searchValue);
 		
+		String param = "";
 		
-		String param ="";
-		if(searchValue!=null && !searchValue.equals("")) {
+		if(searchValue!=null&&!searchValue.equals("")) {
 			param = "searchKey=" + searchKey;
-			param += "&searchValue=" + URLEncoder.encode(searchValue,"UTF-8");
+			param+= "&searchValue=" + URLEncoder.encode(searchValue,"UTF-8");
 		}
 		
-		String listUrl = "/list";
+		String listUrl = "/list.action";
 		
 		if(!param.equals("")) {
-			listUrl += "?" + param;
+			listUrl = listUrl + "?" + param;
 		}
 		
 		String pageIndexList = myUtil.pageIndexList(currentPage, totalPage, listUrl);
 		
 		
-		// 게시글 제목에 게시글 내용을 볼 수 있는 article 링크 걸어주기
-		String articleUrl = "/article?pageNum=" + currentPage;
+		String articleUrl = "/article.action?pageNum=" + currentPage;
 		
 		if(!param.equals("")) {
 			articleUrl = articleUrl + "&" + param;
 		}
-
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("bbs/list");
 		
-		//포워딩할 데이터
-		modelAndView.addObject("lists", lists);
-		modelAndView.addObject("pageIndexList", pageIndexList);
-		modelAndView.addObject("dataCount", dataCount);
-		modelAndView.addObject("articleUrl", articleUrl);
+	
 		
-		return modelAndView;
+		Map<String, Object> result = new HashMap<>();
+        result.put("lists", lists);
+        result.put("currentPage", pageNum);
+        result.put("totalPage", totalPage);
+        result.put("dataCount", dataCount);
 		
+		
+		
+		return result;
 	}
+
+	
+	
+	// /**
+	//  * List 메소드 <br>
+	//  * 검색기능은 Post로 처리되기 때문에, method에 get과 post 둘 다
+	//  * @return
+	//  * @throws Exception
+	//  */
+	// @RequestMapping(value = "/list", method = {RequestMethod.GET,RequestMethod.POST})
+	// //@GetMapping("/list")
+	// public ModelAndView list(HttpServletRequest request) throws Exception {
+		
+		
+	// 	// 페이징 처리
+	// 	String pageNum = request.getParameter("pageNum");
+	// 	int currentPage = 1; // 처음 실행했을 땐 1페이지
+	// 	if(pageNum!=null) { // pageNum이 빈 값이 아니면 => 즉 사용자가 원하는 페이지를 넘겼을 때
+	// 		currentPage = Integer.parseInt(pageNum);
+	// 	}
+		
+	// 	//검색
+	// 	String searchKey = request.getParameter("searchKey");
+	// 	String searchValue = request.getParameter("searchValue");
+		
+	// 	if(searchValue==null) {
+	// 		searchKey="subject";
+	// 		searchValue="";
+	// 	} else {
+	// 		// 사용자가 검색을 했을 때
+	// 		if(request.getMethod().equalsIgnoreCase("get")) {
+	// 			searchValue = URLDecoder.decode(searchValue,"UTF-8");
+	// 		}
+	// 	}
+		
+	// 		// 전체데이터개수
+	// 	int dataCount = boardService.getDataCount(searchKey, searchValue);
+			
+	// 	int numPerPage = 5; // 페이지에 출력할 게시글의 개수
+	// 	int totalPage = myUtil.getPageCount(numPerPage, dataCount); // 전체 페이지 개수
+		
+		
+	// 	if(currentPage>totalPage) {
+	// 		currentPage=totalPage;
+	// 	}
+		
+	// 		// 한 페이지의 시작rownum, 끝rownum
+	// 	int start = (currentPage-1)*numPerPage+1;
+	// 	int end = currentPage*numPerPage;
+		
+		
+	// 	// 한 페이지 내 게시글 리스트
+	// 	List<BoardDTO> lists = boardService.getList(start, end, searchKey, searchValue);
+		
+		
+	// 	String param ="";
+	// 	if(searchValue!=null && !searchValue.equals("")) {
+	// 		param = "searchKey=" + searchKey;
+	// 		param += "&searchValue=" + URLEncoder.encode(searchValue,"UTF-8");
+	// 	}
+		
+	// 	String listUrl = "/list";
+		
+	// 	if(!param.equals("")) {
+	// 		listUrl += "?" + param;
+	// 	}
+		
+	// 	String pageIndexList = myUtil.pageIndexList(currentPage, totalPage, listUrl);
+		
+		
+	// 	// 게시글 제목에 게시글 내용을 볼 수 있는 article 링크 걸어주기
+	// 	String articleUrl = "/article?pageNum=" + currentPage;
+		
+	// 	if(!param.equals("")) {
+	// 		articleUrl = articleUrl + "&" + param;
+	// 	}
+
+	// 	ModelAndView modelAndView = new ModelAndView();
+	// 	modelAndView.setViewName("bbs/list");
+		
+	// 	//포워딩할 데이터
+	// 	modelAndView.addObject("lists", lists);
+	// 	modelAndView.addObject("pageIndexList", pageIndexList);
+	// 	modelAndView.addObject("dataCount", dataCount);
+	// 	modelAndView.addObject("articleUrl", articleUrl);
+		
+	// 	return modelAndView;
+		
+	// }
 	
 	//@RequestMapping(value = "/created", method = RequestMethod.GET)
 	@GetMapping("/created")
@@ -153,14 +231,16 @@ public class BoardController {
 	}
 	
 	//@RequestMapping(value = "/article", method = {RequestMethod.GET,RequestMethod.POST})
+	// public ModelAndView article(HttpServletRequest request) throws Exception {
 	@GetMapping("/article")
-	public ModelAndView article(HttpServletRequest request) throws Exception {
+	public Map<String, Object> article(HttpServletRequest request) throws Exception {
 		
 		String url = "";
 		
 		//검색 X시 pageNum과 num이 넘어오고, 검색 O시 searchKey searchValue까지 함께 넘어온다.
 		int num = Integer.parseInt(request.getParameter("num"));
-		String pageNum = request.getParameter("pageNum");
+		// String pageNum = request.getParameter("pageNum");
+		String pageNum = "1";
 		
 		String searchKey = request.getParameter("searchKey");
 		String searchValue = request.getParameter("searchValue");
@@ -224,17 +304,22 @@ public class BoardController {
 		 * ----------------------------------------
 		 */
 		
+		Map<String, Object> result = new HashMap<>();
+        result.put("dto",dto);
+        result.put("lineSu", lineSu);
+        result.put("params", param);
+        result.put("pageNum", pageNum);
 		
-		ModelAndView mav = new ModelAndView();
-		// 넘어가는 데이터
-		mav.addObject("dto",dto); // request.setAttribute() 대신 ModelAndView 객체에 담아 넘긴다.
-		mav.addObject("lineSu", lineSu);
-		mav.addObject("params", param);
-		mav.addObject("pageNum", pageNum);
+		// ModelAndView mav = new ModelAndView();
+		// // 넘어가는 데이터
+		// mav.addObject("dto",dto); // request.setAttribute() 대신 ModelAndView 객체에 담아 넘긴다.
+		// mav.addObject("lineSu", lineSu);
+		// mav.addObject("params", param);
+		// mav.addObject("pageNum", pageNum);
 		
-		mav.setViewName("bbs/article");
+		// mav.setViewName("bbs/article");
 		
-		return mav;
+		return result;
 		
 	}
 	

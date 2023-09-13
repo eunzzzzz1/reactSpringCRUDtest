@@ -4,7 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
-group = 'com.react'
+group = 'com.spring.boot'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -34,10 +34,9 @@ dependencies {
 
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 }
-
 
 
 // react 연동 -------------------------------------------------------------------------------
