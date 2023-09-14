@@ -4,25 +4,28 @@ import '../../assets/css/style.css'
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios'
 
-function List(){
+function List({data}){
 
-    const [data, setData] = useState({
-        lists: [],
-        currentPage: 1,
-        totalPage: 1,
-        dataCount: 0,
-    });
+    // // list 컨트롤러에서 데이터 받아오기
+    // const [data, setData] = useState({
+    //     lists: [],
+    //     currentPage: 1,
+    //     totalPage: 1,
+    //     dataCount: 0,
+    // });
     
-      useEffect(() => {
+      
+    //   useEffect(() => {
        
-        axios.get('/list')
-          .then((response) => {
-            setData(response.data);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }, []);
+    //     axios.get('/list')
+    //       .then((response) => {
+    //         setData(response.data);
+    //       })
+    //       .catch((error) => {
+    //         console.error(error);
+    //       });
+    //   }, []);
+        
 
 
     return (
@@ -69,8 +72,7 @@ function List(){
                             <tr key={index}>
                                 <td className="num">{data.dataCount-index}</td>
                                 <td className="subject">
-                                <Link to={`/article?pageNum=${data.currentPage}&num=${item.num}`}>{item.subject}</Link>
-                                    </td>
+                                    <Link to={`/article/${item.num}`}> {item.subject} </Link></td> 
                                 <td className="name">{item.name}</td>
                                 <td className="created">{item.created}</td>
                                 <td className="hitCount">{item.hitCount}</td>

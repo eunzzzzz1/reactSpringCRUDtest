@@ -1,30 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import '../../assets/css/style.css'
 import '../../assets/css/article.css'
-import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-function Article() {
+function Article({datalist}) {
 
-    const [data, setData] = useState({
-        dto: [],
-        lineSu: 1,
-        params: 1,
-        pageNum: 0,
-    });
+    const {number}  = useParams()
+    // const [article,setArticle] = useState()
+    const article = datalist.find(item=>item.num===Number(number))
 
-    const {subject, name, created, hitcount, content} = data.dto
-    
-      useEffect(() => {
-       
-        axios.get('/article')
-          .then((response) => {
-            setData(response.data);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }, []);
+    const {subject, name, created, hitCount, content} = article
+
+    console.log(article)
 
     return (
         <div className='bbs'>
@@ -38,15 +25,15 @@ function Article() {
                 </div>
                 <div className='bbsArticle_bottomLine'>
                     <dl>
-                        <dt> 작성자 </dt> <dd> 작성자이름 </dd>
+                        <dt> 작성자 </dt> <dd> {name} </dd>
                         <dt> 줄 수 </dt><dd> 줄수 </dd>
                     </dl>
                 </div>
                 
                 <div className='bbsArticle_bottomLine'>
                     <dl>
-                        <dt> 등록일 </dt> <dd> 2023.00.00 </dd>
-                        <dt> 조회수 </dt><dd> 10 </dd>
+                        <dt> 등록일 </dt> <dd> {created} </dd>
+                        <dt> 조회수 </dt><dd> {hitCount} </dd>
                     </dl>
                 </div>
                 
@@ -55,7 +42,7 @@ function Article() {
                         <tr><td style={{padding: '20px 80px 20px 0px', verticalAlign:'top', innerHeight:'200'}}>
                         <textarea rows={12} cols={63} name='content'
                             style={{paddingLeft: '20px', border: 'none', resize: 'none', backgroundColor: '#ffffff'}}
-                            className='boxTA' disabled='disabled'>내용</textarea>
+                            className='boxTA' disabled='disabled'>{content}</textarea>
                         </td></tr>
                     </table>
                 </div>
