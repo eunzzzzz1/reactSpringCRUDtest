@@ -40,7 +40,7 @@ test {
 
 
 // react 연동 -------------------------------------------------------------------------------
-def frontendDir = "$projectDir/src/main/reactfront"
+def frontendDir = "$projectDir/src/main/reactfront" // 여기에 프론트폴더를 기입하면 됨!
 
 sourceSets {
     main {

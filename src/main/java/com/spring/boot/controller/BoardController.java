@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -212,11 +213,10 @@ public class BoardController {
 		
 	}
 	
-	//@RequestMapping(value = "/created", method = RequestMethod.POST)
-	@PostMapping("/created")
-	public ModelAndView created_ok(BoardDTO dto, HttpServletRequest request) throws Exception {
+
+	@PostMapping("/created_ok")
+	public void created_ok(@RequestBody BoardDTO dto, HttpServletRequest request) throws Exception {
 			// 사용자의 폼 입력값이 담긴 dto
-		ModelAndView modelAndView = new ModelAndView();
 
 		int maxNum = boardService.maxNum();
 		
@@ -224,9 +224,8 @@ public class BoardController {
 		dto.setIpAddr(request.getRemoteAddr());
 		
 		boardService.insertData(dto);
-		
-		modelAndView.setViewName("redirect:/list");
-		return modelAndView;
+		System.out.println("게시글 입력 완료");
+	
 		
 	}
 	
